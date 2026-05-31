@@ -1,5 +1,14 @@
 Kyfr frontend assignment 
 
+Steps to run the project:
+
+1. Clone the repository
+2. cd kyfr/mobileapp 
+   flutter pub get
+3. flutter run
+4. email: demo@kyfr.com
+   password: password123
+
 Demo video:
 https://github.com/user-attachments/assets/b9ab077a-e99a-4d95-93ed-caadc147e713
 
