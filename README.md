@@ -1,5 +1,9 @@
 Kyfr frontend assignment 
 
+Demo video:
+https://github.com/user-attachments/assets/b9ab077a-e99a-4d95-93ed-caadc147e713
+
+
 <img width="712" height="1600" alt="image" src="https://github.com/user-attachments/assets/89ac048f-ff6f-4c0d-b95d-7f10c1209ef6" />
 
 <img width="712" height="1600" alt="image" src="https://github.com/user-attachments/assets/fe9d28ee-0abc-4850-9a74-fdeb34eeafc6" />
