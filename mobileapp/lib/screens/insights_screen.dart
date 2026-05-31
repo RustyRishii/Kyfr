@@ -74,6 +74,7 @@ class InsightsScreen extends StatelessWidget {
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: const Color(0xFFE3F5F2)),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -125,6 +126,7 @@ class _InsightCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: const Color(0xFFE3F5F2)),
       ),
       child: Row(
         children: [

@@ -193,7 +193,7 @@ class _LogoMark extends StatelessWidget {
         alignment: Alignment.center,
         padding: const EdgeInsets.symmetric(horizontal: 18),
         decoration: BoxDecoration(
-          color: const Color(0xFF111827),
+          color: const Color(0xFF134E4A),
           borderRadius: BorderRadius.circular(8),
         ),
         child: SvgPicture.asset(

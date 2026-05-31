@@ -91,24 +91,45 @@ class _DashboardScreenState extends State<DashboardScreen> {
           ),
           const SizedBox(height: 10),
           Container(
-            padding: const EdgeInsets.all(22),
+            padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.primary,
+              color: const Color(0xFFE0F8F5),
               borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: const Color(0xFFA7F3E7)),
             ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+            child: Row(
               children: [
-                const Text(
-                  'Wallet balance',
-                  style: TextStyle(color: Colors.white70),
+                Container(
+                  width: 44,
+                  height: 44,
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.7),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: const Icon(
+                    Icons.account_balance_wallet_outlined,
+                    color: Color(0xFF0F766E),
+                  ),
                 ),
-                const SizedBox(height: 10),
-                Text(
-                  'Rs ${widget.balance.toStringAsFixed(0)}',
-                  style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                    color: Colors.white,
-                    fontWeight: FontWeight.w900,
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'Wallet balance',
+                        style: TextStyle(color: Color(0xFF58706C)),
+                      ),
+                      const SizedBox(height: 6),
+                      Text(
+                        'Rs ${widget.balance.toStringAsFixed(0)}',
+                        style: Theme.of(context).textTheme.headlineSmall
+                            ?.copyWith(
+                              color: const Color(0xFF134E4A),
+                              fontWeight: FontWeight.w900,
+                            ),
+                      ),
+                    ],
                   ),
                 ),
               ],
@@ -190,13 +211,26 @@ class _InsightMessageCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: const Color(0xFFFFFFFF),
         borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: const Color(0xFFD3F4F0)),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(Icons.lightbulb_outline, color: colorScheme.primary),
+          Container(
+            width: 34,
+            height: 34,
+            decoration: BoxDecoration(
+              color: const Color(0xFFE0F8F5),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Icon(
+              Icons.lightbulb_outline,
+              color: colorScheme.primary,
+              size: 20,
+            ),
+          ),
           const SizedBox(width: 12),
           Expanded(
             child: AnimatedSwitcher(

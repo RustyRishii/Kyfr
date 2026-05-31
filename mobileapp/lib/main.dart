@@ -32,8 +32,11 @@ class _KyfrAppState extends State<KyfrApp> {
   @override
   Widget build(BuildContext context) {
     final colorScheme = ColorScheme.fromSeed(
-      seedColor: const Color(0xFF2563EB),
+      seedColor: const Color(0xFF14B8A6),
+      primary: const Color(0xFF0F766E),
+      secondary: const Color(0xFF14B8A6),
       surface: Colors.white,
+      onSurface: const Color(0xFF10201D),
     );
 
     return MaterialApp(
@@ -42,9 +45,27 @@ class _KyfrAppState extends State<KyfrApp> {
       theme: ThemeData(
         useMaterial3: true,
         colorScheme: colorScheme,
-        scaffoldBackgroundColor: const Color(0xFFF6F8FB),
+        scaffoldBackgroundColor: const Color(0xFFF2FBFA),
+        appBarTheme: const AppBarTheme(
+          backgroundColor: Color(0xFFF2FBFA),
+          foregroundColor: Color(0xFF10201D),
+          elevation: 0,
+          centerTitle: false,
+          scrolledUnderElevation: 0,
+        ),
         inputDecorationTheme: InputDecorationTheme(
-          border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(8),
+            borderSide: const BorderSide(color: Color(0xFFD3F4F0)),
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(8),
+            borderSide: const BorderSide(color: Color(0xFFD3F4F0)),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(8),
+            borderSide: const BorderSide(color: Color(0xFF14B8A6), width: 1.4),
+          ),
           filled: true,
           fillColor: Colors.white,
         ),
@@ -54,6 +75,8 @@ class _KyfrAppState extends State<KyfrApp> {
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(8),
             ),
+            backgroundColor: const Color(0xFF0F766E),
+            foregroundColor: Colors.white,
           ),
         ),
         outlinedButtonTheme: OutlinedButtonThemeData(
@@ -62,7 +85,21 @@ class _KyfrAppState extends State<KyfrApp> {
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(8),
             ),
+            foregroundColor: const Color(0xFF0F766E),
+            side: const BorderSide(color: Color(0xFF99F6E4)),
           ),
+        ),
+        navigationBarTheme: NavigationBarThemeData(
+          backgroundColor: Colors.white,
+          elevation: 0,
+          indicatorColor: const Color(0xFFCCFBF1),
+          labelTextStyle: WidgetStateProperty.all(
+            const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
+          ),
+        ),
+        snackBarTheme: const SnackBarThemeData(
+          backgroundColor: Color(0xFF134E4A),
+          contentTextStyle: TextStyle(color: Colors.white),
         ),
       ),
       home: _userName == null
