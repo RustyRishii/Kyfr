@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 class SendMoneyScreen extends StatefulWidget {
   const SendMoneyScreen({
@@ -21,15 +22,57 @@ class _SendMoneyScreenState extends State<SendMoneyScreen> {
   final _amountController = TextEditingController();
   final _noteController = TextEditingController();
 
+  bool _isFormValid = false;
+
+  static final _emailPattern = RegExp(
+    r'^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$',
+  );
+  static final _linkPattern = RegExp(
+    r'((https?:\/\/|www\.)\S+)|\b[A-Za-z0-9-]+\.(com|in|net|org|io|co|dev|app|ai)\b',
+    caseSensitive: false,
+  );
+  static final _webPrefixPattern = RegExp(
+    r'(https?:\/\/|www\.)',
+    caseSensitive: false,
+  );
+
+  @override
+  void initState() {
+    super.initState();
+    _recipientController.addListener(_updateFormValidity);
+    _amountController.addListener(_updateFormValidity);
+    _noteController.addListener(_updateFormValidity);
+  }
+
   @override
   void dispose() {
+    _recipientController.removeListener(_updateFormValidity);
+    _amountController.removeListener(_updateFormValidity);
+    _noteController.removeListener(_updateFormValidity);
     _recipientController.dispose();
     _amountController.dispose();
     _noteController.dispose();
     super.dispose();
   }
 
+  void _updateFormValidity() {
+    final isValid =
+        _validateRecipient(_recipientController.text) == null &&
+        _validateAmount(_amountController.text) == null &&
+        _validateNote(_noteController.text) == null;
+
+    if (isValid != _isFormValid) {
+      setState(() {
+        _isFormValid = isValid;
+      });
+    }
+  }
+
   void _submit() {
+    if (!_isFormValid) {
+      return;
+    }
+
     if (!_formKey.currentState!.validate()) {
       return;
     }
@@ -50,6 +93,40 @@ class _SendMoneyScreenState extends State<SendMoneyScreen> {
     _recipientController.clear();
     _amountController.clear();
     _noteController.clear();
+  }
+
+  String? _validateRecipient(String? value) {
+    final recipient = value?.trim() ?? '';
+    if (recipient.isEmpty) {
+      return 'Recipient email is required';
+    }
+    if (_webPrefixPattern.hasMatch(recipient)) {
+      return 'Links are not allowed';
+    }
+    if (!_emailPattern.hasMatch(recipient)) {
+      return 'Enter a valid email address';
+    }
+    return null;
+  }
+
+  String? _validateAmount(String? value) {
+    final rawAmount = value?.trim() ?? '';
+    final amount = double.tryParse(rawAmount);
+    if (rawAmount.isEmpty || amount == null || amount <= 0) {
+      return 'Enter a valid amount';
+    }
+    if (rawAmount.split('.').length > 2) {
+      return 'Only one decimal point is allowed';
+    }
+    return null;
+  }
+
+  String? _validateNote(String? value) {
+    final note = value?.trim() ?? '';
+    if (note.isNotEmpty && _linkPattern.hasMatch(note)) {
+      return 'Links are not allowed';
+    }
+    return null;
   }
 
   @override
@@ -79,35 +156,31 @@ class _SendMoneyScreenState extends State<SendMoneyScreen> {
               children: [
                 TextFormField(
                   controller: _recipientController,
+                  keyboardType: TextInputType.emailAddress,
                   textInputAction: TextInputAction.next,
                   decoration: const InputDecoration(
-                    labelText: 'Recipient email or username',
-                    prefixIcon: Icon(Icons.person_search_outlined),
+                    labelText: 'Recipient email',
+                    prefixIcon: Icon(Icons.mail_outline),
                   ),
-                  validator: (value) {
-                    if (value == null || value.trim().isEmpty) {
-                      return 'Recipient is required';
-                    }
-                    return null;
-                  },
+                  inputFormatters: [
+                    _NoLinksTextInputFormatter(prefixOnly: true),
+                  ],
+                  validator: _validateRecipient,
                 ),
                 const SizedBox(height: 14),
                 TextFormField(
                   controller: _amountController,
-                  keyboardType: TextInputType.number,
+                  keyboardType: const TextInputType.numberWithOptions(
+                    decimal: true,
+                  ),
                   textInputAction: TextInputAction.next,
                   decoration: const InputDecoration(
                     labelText: 'Amount',
                     prefixText: 'Rs ',
                     prefixIcon: Icon(Icons.currency_rupee),
                   ),
-                  validator: (value) {
-                    final amount = double.tryParse(value?.trim() ?? '');
-                    if (amount == null || amount <= 0) {
-                      return 'Enter a valid amount';
-                    }
-                    return null;
-                  },
+                  inputFormatters: const [_SingleDecimalInputFormatter()],
+                  validator: _validateAmount,
                 ),
                 const SizedBox(height: 14),
                 TextFormField(
@@ -117,6 +190,8 @@ class _SendMoneyScreenState extends State<SendMoneyScreen> {
                     labelText: 'Note optional',
                     prefixIcon: Icon(Icons.notes_outlined),
                   ),
+                  inputFormatters: const [_NoLinksTextInputFormatter()],
+                  validator: _validateNote,
                   onFieldSubmitted: (_) => _submit(),
                 ),
               ],
@@ -124,12 +199,56 @@ class _SendMoneyScreenState extends State<SendMoneyScreen> {
           ),
           const SizedBox(height: 20),
           ElevatedButton.icon(
-            onPressed: _submit,
+            onPressed: _isFormValid ? _submit : null,
             icon: const Icon(Icons.send),
             label: const Text('Send money'),
           ),
         ],
       ),
     );
+  }
+}
+
+class _SingleDecimalInputFormatter extends TextInputFormatter {
+  const _SingleDecimalInputFormatter();
+
+  static final _amountPattern = RegExp(r'^\d*\.?\d{0,2}$');
+
+  @override
+  TextEditingValue formatEditUpdate(
+    TextEditingValue oldValue,
+    TextEditingValue newValue,
+  ) {
+    final text = newValue.text;
+    if (text.isEmpty || _amountPattern.hasMatch(text)) {
+      return newValue;
+    }
+    return oldValue;
+  }
+}
+
+class _NoLinksTextInputFormatter extends TextInputFormatter {
+  const _NoLinksTextInputFormatter({this.prefixOnly = false});
+
+  final bool prefixOnly;
+
+  static final _linkPattern = RegExp(
+    r'((https?:\/\/|www\.)\S+)|\b[A-Za-z0-9-]+\.(com|in|net|org|io|co|dev|app|ai)\b',
+    caseSensitive: false,
+  );
+  static final _webPrefixPattern = RegExp(
+    r'(https?:\/\/|www\.)',
+    caseSensitive: false,
+  );
+
+  @override
+  TextEditingValue formatEditUpdate(
+    TextEditingValue oldValue,
+    TextEditingValue newValue,
+  ) {
+    final hasLink = prefixOnly
+        ? _webPrefixPattern.hasMatch(newValue.text)
+        : _linkPattern.hasMatch(newValue.text);
+    return hasLink ? oldValue : newValue;
   }
 }
