@@ -50,9 +50,25 @@ class _AuthScreenState extends State<AuthScreen> {
   }
 
   void _toggleMode(bool isLogin) {
+    if (_isLogin == isLogin) {
+      return;
+    }
+
     setState(() {
       _isLogin = isLogin;
     });
+  }
+
+  Widget _slideFromRightTransition(Widget child, Animation<double> animation) {
+    final slideAnimation = Tween<Offset>(
+      begin: const Offset(1, 0),
+      end: Offset.zero,
+    ).animate(CurvedAnimation(parent: animation, curve: Curves.easeOutCubic));
+
+    return FadeTransition(
+      opacity: animation,
+      child: SlideTransition(position: slideAnimation, child: child),
+    );
   }
 
   @override
@@ -69,22 +85,33 @@ class _AuthScreenState extends State<AuthScreen> {
                 children: [
                   const _LogoMark(),
                   const SizedBox(height: 24),
-                  Text(
-                    _isLogin ? 'Welcome back' : 'Create your wallet',
-                    textAlign: TextAlign.center,
-                    style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                      fontWeight: FontWeight.w800,
+                  AnimatedSwitcher(
+                    duration: const Duration(milliseconds: 260),
+                    transitionBuilder: _slideFromRightTransition,
+                    child: Text(
+                      _isLogin ? 'Welcome back' : 'Create your wallet',
+                      key: ValueKey(_isLogin ? 'login-title' : 'signup-title'),
+                      textAlign: TextAlign.center,
+                      style: Theme.of(context).textTheme.headlineSmall
+                          ?.copyWith(fontWeight: FontWeight.w800),
                     ),
                   ),
                   const SizedBox(height: 8),
-                  Text(
-                    _isLogin
-                        ? 'Sign in to manage your Kyfr wallet.'
-                        : 'Start with a simple wallet account.',
-                    textAlign: TextAlign.center,
-                    style: Theme.of(
-                      context,
-                    ).textTheme.bodyMedium?.copyWith(color: Colors.black54),
+                  AnimatedSwitcher(
+                    duration: const Duration(milliseconds: 260),
+                    transitionBuilder: _slideFromRightTransition,
+                    child: Text(
+                      _isLogin
+                          ? 'Sign in to manage your Kyfr wallet.'
+                          : 'Start with a simple wallet account.',
+                      key: ValueKey(
+                        _isLogin ? 'login-subtitle' : 'signup-subtitle',
+                      ),
+                      textAlign: TextAlign.center,
+                      style: Theme.of(
+                        context,
+                      ).textTheme.bodyMedium?.copyWith(color: Colors.black54),
+                    ),
                   ),
                   const SizedBox(height: 24),
                   SegmentedButton<bool>(
@@ -102,23 +129,35 @@ class _AuthScreenState extends State<AuthScreen> {
                     key: _formKey,
                     child: Column(
                       children: [
-                        if (!_isLogin) ...[
-                          TextFormField(
-                            controller: _nameController,
-                            textInputAction: TextInputAction.next,
-                            decoration: const InputDecoration(
-                              labelText: 'Full name',
-                              prefixIcon: Icon(Icons.person_outline),
-                            ),
-                            validator: (value) {
-                              if (value == null || value.trim().isEmpty) {
-                                return 'Name is required';
-                              }
-                              return null;
-                            },
-                          ),
-                          const SizedBox(height: 14),
-                        ],
+                        AnimatedSwitcher(
+                          duration: const Duration(milliseconds: 260),
+                          transitionBuilder: _slideFromRightTransition,
+                          child: _isLogin
+                              ? const SizedBox.shrink(
+                                  key: ValueKey('login-name-field'),
+                                )
+                              : Column(
+                                  key: const ValueKey('signup-name-field'),
+                                  children: [
+                                    TextFormField(
+                                      controller: _nameController,
+                                      textInputAction: TextInputAction.next,
+                                      decoration: const InputDecoration(
+                                        labelText: 'Full name',
+                                        prefixIcon: Icon(Icons.person_outline),
+                                      ),
+                                      validator: (value) {
+                                        if (value == null ||
+                                            value.trim().isEmpty) {
+                                          return 'Name is required';
+                                        }
+                                        return null;
+                                      },
+                                    ),
+                                    const SizedBox(height: 14),
+                                  ],
+                                ),
+                        ),
                         TextFormField(
                           controller: _emailController,
                           keyboardType: TextInputType.emailAddress,
@@ -169,7 +208,16 @@ class _AuthScreenState extends State<AuthScreen> {
                             dimension: 20,
                             child: CircularProgressIndicator(strokeWidth: 2),
                           )
-                        : Text(_isLogin ? 'Login' : 'Create account'),
+                        : AnimatedSwitcher(
+                            duration: const Duration(milliseconds: 220),
+                            transitionBuilder: _slideFromRightTransition,
+                            child: Text(
+                              _isLogin ? 'Login' : 'Create account',
+                              key: ValueKey(
+                                _isLogin ? 'login-button' : 'signup-button',
+                              ),
+                            ),
+                          ),
                   ),
                 ],
               ),

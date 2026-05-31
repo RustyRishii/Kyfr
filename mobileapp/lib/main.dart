@@ -103,13 +103,13 @@ class _KyfrAppState extends State<KyfrApp> {
         ),
       ),
       home: AnimatedSwitcher(
-        duration: const Duration(milliseconds: 360),
+        duration: const Duration(milliseconds: 380),
         switchInCurve: Curves.easeOutCubic,
         switchOutCurve: Curves.easeInCubic,
         transitionBuilder: (child, animation) {
           final slideAnimation =
               Tween<Offset>(
-                begin: const Offset(0, 0.035),
+                begin: const Offset(1, 0),
                 end: Offset.zero,
               ).animate(
                 CurvedAnimation(parent: animation, curve: Curves.easeOutCubic),
