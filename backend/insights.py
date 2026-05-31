@@ -1,8 +1,8 @@
-from fastapi import FastAPI
+from fastapi import APIRouter
 
-app = FastAPI()
+router = APIRouter()
 
 
-@app.get("/insights")
+@router.get("/insights")
 def insights():
     return {"message": "You spent most of your money on transfers this week"}

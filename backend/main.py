@@ -1,18 +1,12 @@
 from fastapi import FastAPI
 
+from .insights import router as insights_router
+
 app = FastAPI()
+
+app.include_router(insights_router)
 
 
 @app.get("/")
 def read_root():
     return {"message": "Hello from FastAPI on my Mac!"}
-
-
-@app.get("/insights")
-def get_insights():
-    return {"message": "You spent most of your money on transfers this weekj"}
-
-
-@app.get("/items/{item_id}")
-def read_item(item_id: int, q: str = None):
-    return {"item_id": item_id, "query": q}
