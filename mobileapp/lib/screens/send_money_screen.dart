@@ -5,11 +5,13 @@ class SendMoneyScreen extends StatefulWidget {
   const SendMoneyScreen({
     super.key,
     required this.balance,
+    required this.isSubmitting,
     required this.onSendMoney,
   });
 
   final double balance;
-  final String? Function(String recipient, double amount, String note)
+  final bool isSubmitting;
+  final Future<String?> Function(String recipient, double amount, String note)
   onSendMoney;
 
   @override
@@ -68,8 +70,8 @@ class _SendMoneyScreenState extends State<SendMoneyScreen> {
     }
   }
 
-  void _submit() {
-    if (!_isFormValid) {
+  Future<void> _submit() async {
+    if (!_isFormValid || widget.isSubmitting) {
       return;
     }
 
@@ -77,11 +79,15 @@ class _SendMoneyScreenState extends State<SendMoneyScreen> {
       return;
     }
 
-    final error = widget.onSendMoney(
+    final error = await widget.onSendMoney(
       _recipientController.text.trim(),
       double.parse(_amountController.text.trim()),
       _noteController.text.trim(),
     );
+
+    if (!mounted) {
+      return;
+    }
 
     if (error != null) {
       ScaffoldMessenger.of(context)
@@ -199,9 +205,14 @@ class _SendMoneyScreenState extends State<SendMoneyScreen> {
           ),
           const SizedBox(height: 20),
           ElevatedButton.icon(
-            onPressed: _isFormValid ? _submit : null,
-            icon: const Icon(Icons.send),
-            label: const Text('Send money'),
+            onPressed: _isFormValid && !widget.isSubmitting ? _submit : null,
+            icon: widget.isSubmitting
+                ? const SizedBox.square(
+                    dimension: 18,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  )
+                : const Icon(Icons.send),
+            label: Text(widget.isSubmitting ? 'Sending...' : 'Send money'),
           ),
         ],
       ),

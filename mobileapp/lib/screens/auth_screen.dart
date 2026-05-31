@@ -1,10 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
-class AuthScreen extends StatefulWidget {
-  const AuthScreen({super.key, required this.onAuthenticated});
+typedef AuthSubmitCallback =
+    Future<String?> Function({
+      required bool isLogin,
+      required String name,
+      required String email,
+      required String password,
+    });
 
-  final ValueChanged<String> onAuthenticated;
+class AuthScreen extends StatefulWidget {
+  const AuthScreen({super.key, required this.onSubmit});
+
+  final AuthSubmitCallback onSubmit;
 
   @override
   State<AuthScreen> createState() => _AuthScreenState();
@@ -16,7 +24,7 @@ class _AuthScreenState extends State<AuthScreen> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
 
-  bool _isLogin = true;
+  bool _isLogin = false;
   bool _isLoading = false;
 
   @override
@@ -36,17 +44,31 @@ class _AuthScreenState extends State<AuthScreen> {
       _isLoading = true;
     });
 
-    await Future<void>.delayed(const Duration(milliseconds: 500));
+    String? error;
+    try {
+      error = await widget.onSubmit(
+        isLogin: _isLogin,
+        name: _nameController.text.trim(),
+        email: _emailController.text.trim(),
+        password: _passwordController.text,
+      );
+    } catch (_) {
+      error = 'Something went wrong. Please try again.';
+    }
 
     if (!mounted) {
       return;
     }
 
-    final name = _isLogin
-        ? _emailController.text.trim().split('@').first
-        : _nameController.text.trim();
+    setState(() {
+      _isLoading = false;
+    });
 
-    widget.onAuthenticated(name.isEmpty ? 'Kyfr user' : name);
+    if (error != null) {
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(SnackBar(content: Text(error)));
+    }
   }
 
   void _toggleMode(bool isLogin) {

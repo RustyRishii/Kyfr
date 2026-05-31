@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 import '../models/wallet_transaction.dart';
-import '../services/insights_api.dart';
 import '../widgets/transaction_tile.dart';
 
 class DashboardScreen extends StatefulWidget {
@@ -10,23 +9,25 @@ class DashboardScreen extends StatefulWidget {
     required this.userName,
     required this.balance,
     required this.recentTransactions,
+    required this.isAddingMoney,
     required this.onAddMoney,
     required this.onSendMoney,
+    required this.onLoadInsight,
   });
 
   final String userName;
   final double balance;
   final List<WalletTransaction> recentTransactions;
-  final ValueChanged<double> onAddMoney;
+  final bool isAddingMoney;
+  final Future<void> Function(double amount) onAddMoney;
   final VoidCallback onSendMoney;
+  final Future<String> Function() onLoadInsight;
 
   @override
   State<DashboardScreen> createState() => _DashboardScreenState();
 }
 
 class _DashboardScreenState extends State<DashboardScreen> {
-  final _insightsApi = InsightsApi();
-
   bool _isLoadingInsight = true;
   String? _insightMessage;
   String? _insightError;
@@ -44,7 +45,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     });
 
     try {
-      final message = await _insightsApi.fetchWeeklyInsight();
+      final message = await widget.onLoadInsight();
       if (!mounted) {
         return;
       }
@@ -72,7 +73,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
 
     if (amount != null) {
-      widget.onAddMoney(amount);
+      await widget.onAddMoney(amount);
     }
   }
 
@@ -140,9 +141,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
             children: [
               Expanded(
                 child: ElevatedButton.icon(
-                  onPressed: () => _openAddMoneySheet(context),
-                  icon: const Icon(Icons.add),
-                  label: const Text('Add money'),
+                  onPressed: widget.isAddingMoney
+                      ? null
+                      : () => _openAddMoneySheet(context),
+                  icon: widget.isAddingMoney
+                      ? const SizedBox.square(
+                          dimension: 18,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      : const Icon(Icons.add),
+                  label: Text(widget.isAddingMoney ? 'Adding...' : 'Add money'),
                 ),
               ),
               const SizedBox(width: 12),

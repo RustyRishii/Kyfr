@@ -35,4 +35,33 @@ class WalletTransaction {
       TransactionStatus.failed => 'Failed',
     };
   }
+
+  factory WalletTransaction.fromJson(Map<String, dynamic> json) {
+    return WalletTransaction(
+      id: json['id'] as String,
+      title: json['title'] as String,
+      subtitle: json['subtitle'] as String,
+      amount: (json['amount'] as num).toDouble(),
+      kind: _transactionKindFromJson(json['kind'] as String),
+      status: _transactionStatusFromJson(json['status'] as String),
+      createdAt: DateTime.parse(json['created_at'] as String).toLocal(),
+    );
+  }
+}
+
+TransactionKind _transactionKindFromJson(String value) {
+  return switch (value.toLowerCase()) {
+    'credit' => TransactionKind.credit,
+    'debit' => TransactionKind.debit,
+    _ => throw FormatException('Unknown transaction kind: $value'),
+  };
+}
+
+TransactionStatus _transactionStatusFromJson(String value) {
+  return switch (value.toLowerCase()) {
+    'success' => TransactionStatus.success,
+    'pending' => TransactionStatus.pending,
+    'failed' => TransactionStatus.failed,
+    _ => throw FormatException('Unknown transaction status: $value'),
+  };
 }

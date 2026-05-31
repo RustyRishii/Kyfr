@@ -1,31 +1,79 @@
 import 'package:flutter/material.dart';
 
+import 'models/auth_session.dart';
 import 'screens/auth_screen.dart';
 import 'screens/home_shell.dart';
+import 'services/kyfr_api.dart';
+import 'services/realtime_client.dart';
 
 void main() {
   runApp(const KyfrApp());
 }
 
 class KyfrApp extends StatefulWidget {
-  const KyfrApp({super.key});
+  const KyfrApp({super.key, this.apiClient, this.realtimeClient});
+
+  final KyfrApi? apiClient;
+  final RealtimeClient? realtimeClient;
 
   @override
   State<KyfrApp> createState() => _KyfrAppState();
 }
 
 class _KyfrAppState extends State<KyfrApp> {
-  String? _userName;
+  late final KyfrApi _apiClient;
+  late final RealtimeClient _realtimeClient;
+  AuthSession? _session;
 
-  void _handleAuthenticated(String userName) {
-    setState(() {
-      _userName = userName;
-    });
+  @override
+  void initState() {
+    super.initState();
+    _apiClient = widget.apiClient ?? HttpKyfrApi();
+    _realtimeClient = widget.realtimeClient ?? KyfrRealtimeClient();
   }
 
-  void _handleLogout() {
+  @override
+  void dispose() {
+    _apiClient.close();
+    _realtimeClient.disconnect();
+    super.dispose();
+  }
+
+  Future<String?> _handleAuthSubmit({
+    required bool isLogin,
+    required String name,
+    required String email,
+    required String password,
+  }) async {
+    try {
+      final session = isLogin
+          ? await _apiClient.login(email: email, password: password)
+          : await _apiClient.signup(
+              name: name,
+              email: email,
+              password: password,
+            );
+      if (!mounted) {
+        return null;
+      }
+      setState(() {
+        _session = session;
+      });
+      return null;
+    } on ApiException catch (error) {
+      return error.message;
+    } catch (_) {
+      return 'Unable to connect to Kyfr. Please try again.';
+    }
+  }
+
+  Future<void> _handleLogout() async {
+    await _realtimeClient.disconnect();
+    if (!mounted) {
+      return;
+    }
     setState(() {
-      _userName = null;
+      _session = null;
     });
   }
 
@@ -120,14 +168,16 @@ class _KyfrAppState extends State<KyfrApp> {
             child: SlideTransition(position: slideAnimation, child: child),
           );
         },
-        child: _userName == null
+        child: _session == null
             ? AuthScreen(
                 key: const ValueKey('auth-screen'),
-                onAuthenticated: _handleAuthenticated,
+                onSubmit: _handleAuthSubmit,
               )
             : HomeShell(
                 key: const ValueKey('home-shell'),
-                userName: _userName!,
+                session: _session!,
+                apiClient: _apiClient,
+                realtimeClient: _realtimeClient,
                 onLogout: _handleLogout,
               ),
       ),
