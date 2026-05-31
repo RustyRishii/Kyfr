@@ -116,8 +116,8 @@ class _AuthScreenState extends State<AuthScreen> {
                   const SizedBox(height: 24),
                   SegmentedButton<bool>(
                     segments: const [
-                      ButtonSegment(value: true, label: Text('Login')),
                       ButtonSegment(value: false, label: Text('Signup')),
+                      ButtonSegment(value: true, label: Text('Login')),
                     ],
                     selected: {_isLogin},
                     onSelectionChanged: (selection) {

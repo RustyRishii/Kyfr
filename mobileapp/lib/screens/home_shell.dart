@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 import '../models/wallet_transaction.dart';
 import 'dashboard_screen.dart';
@@ -161,7 +162,7 @@ class _HomeShellState extends State<HomeShell> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Kyfr'),
+        title: const _AppLogoTitle(),
         actions: [
           IconButton(
             tooltip: 'Logout',
@@ -209,6 +210,28 @@ class _HomeShellState extends State<HomeShell> {
             label: 'Insights',
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _AppLogoTitle extends StatelessWidget {
+  const _AppLogoTitle();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 102,
+      height: 34,
+      alignment: Alignment.center,
+      padding: const EdgeInsets.symmetric(horizontal: 12),
+      decoration: BoxDecoration(
+        color: const Color(0xFF134E4A),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: SvgPicture.asset(
+        'assets/images/kyfrlogo.svg',
+        fit: BoxFit.contain,
       ),
     );
   }
