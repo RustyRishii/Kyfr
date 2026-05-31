@@ -1,6 +1,9 @@
 from fastapi import FastAPI
 
-from .insights import router as insights_router
+try:
+    from .insights import router as insights_router
+except ImportError:
+    from insights import router as insights_router
 
 app = FastAPI()
 
