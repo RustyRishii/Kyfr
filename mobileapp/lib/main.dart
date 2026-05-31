@@ -102,9 +102,35 @@ class _KyfrAppState extends State<KyfrApp> {
           contentTextStyle: TextStyle(color: Colors.white),
         ),
       ),
-      home: _userName == null
-          ? AuthScreen(onAuthenticated: _handleAuthenticated)
-          : HomeShell(userName: _userName!, onLogout: _handleLogout),
+      home: AnimatedSwitcher(
+        duration: const Duration(milliseconds: 360),
+        switchInCurve: Curves.easeOutCubic,
+        switchOutCurve: Curves.easeInCubic,
+        transitionBuilder: (child, animation) {
+          final slideAnimation =
+              Tween<Offset>(
+                begin: const Offset(0, 0.035),
+                end: Offset.zero,
+              ).animate(
+                CurvedAnimation(parent: animation, curve: Curves.easeOutCubic),
+              );
+
+          return FadeTransition(
+            opacity: animation,
+            child: SlideTransition(position: slideAnimation, child: child),
+          );
+        },
+        child: _userName == null
+            ? AuthScreen(
+                key: const ValueKey('auth-screen'),
+                onAuthenticated: _handleAuthenticated,
+              )
+            : HomeShell(
+                key: const ValueKey('home-shell'),
+                userName: _userName!,
+                onLogout: _handleLogout,
+              ),
+      ),
     );
   }
 }

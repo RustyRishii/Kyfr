@@ -19,6 +19,7 @@ class HomeShell extends StatefulWidget {
 class _HomeShellState extends State<HomeShell> {
   int _selectedIndex = 0;
   double _balance = 12500;
+  late final PageController _pageController;
 
   final List<WalletTransaction> _transactions = [
     WalletTransaction(
@@ -50,10 +51,36 @@ class _HomeShellState extends State<HomeShell> {
     ),
   ];
 
-  void _goToSendMoney() {
+  @override
+  void initState() {
+    super.initState();
+    _pageController = PageController();
+  }
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
+  }
+
+  void _selectTab(int index) {
+    if (index == _selectedIndex) {
+      return;
+    }
+
     setState(() {
-      _selectedIndex = 1;
+      _selectedIndex = index;
     });
+
+    _pageController.animateToPage(
+      index,
+      duration: const Duration(milliseconds: 320),
+      curve: Curves.easeOutCubic,
+    );
+  }
+
+  void _goToSendMoney() {
+    _selectTab(1);
   }
 
   void _showMessage(String message) {
@@ -109,15 +136,27 @@ class _HomeShellState extends State<HomeShell> {
   Widget build(BuildContext context) {
     final pages = [
       DashboardScreen(
+        key: const PageStorageKey('dashboard-screen'),
         userName: widget.userName,
         balance: _balance,
         recentTransactions: _transactions.take(3).toList(),
         onAddMoney: _addMoney,
         onSendMoney: _goToSendMoney,
       ),
-      SendMoneyScreen(balance: _balance, onSendMoney: _sendMoney),
-      TransactionHistoryScreen(transactions: _transactions),
-      InsightsScreen(balance: _balance, transactions: _transactions),
+      SendMoneyScreen(
+        key: const PageStorageKey('send-money-screen'),
+        balance: _balance,
+        onSendMoney: _sendMoney,
+      ),
+      TransactionHistoryScreen(
+        key: const PageStorageKey('transaction-history-screen'),
+        transactions: _transactions,
+      ),
+      InsightsScreen(
+        key: const PageStorageKey('insights-screen'),
+        balance: _balance,
+        transactions: _transactions,
+      ),
     ];
 
     return Scaffold(
@@ -132,15 +171,22 @@ class _HomeShellState extends State<HomeShell> {
         ],
       ),
       body: SafeArea(
-        child: IndexedStack(index: _selectedIndex, children: pages),
+        child: PageView(
+          controller: _pageController,
+          physics: const NeverScrollableScrollPhysics(),
+          onPageChanged: (index) {
+            if (index != _selectedIndex) {
+              setState(() {
+                _selectedIndex = index;
+              });
+            }
+          },
+          children: pages,
+        ),
       ),
       bottomNavigationBar: NavigationBar(
         selectedIndex: _selectedIndex,
-        onDestinationSelected: (index) {
-          setState(() {
-            _selectedIndex = index;
-          });
-        },
+        onDestinationSelected: _selectTab,
         destinations: const [
           NavigationDestination(
             icon: Icon(Icons.account_balance_wallet_outlined),
