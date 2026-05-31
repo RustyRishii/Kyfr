@@ -1,4 +1,4 @@
-package com.example.mobileapp
+package com.example.kyfr
 
 import io.flutter.embedding.android.FlutterActivity
 

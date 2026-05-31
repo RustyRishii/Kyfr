@@ -1,11 +1,11 @@
 {
-    "name": "mobileapp",
-    "short_name": "mobileapp",
+    "name": "Kyfr",
+    "short_name": "Kyfr",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
     "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "description": "Kyfr wallet and transaction app.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [
